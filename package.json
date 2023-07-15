@@ -1,7 +1,7 @@
 {
-    "homepage": "https://bryanluwz.github.io/<sum ting wong>",
-    "name": "name",
-    "description": "description",
+    "homepage": "https://bryanluwz.github.io/floppy-bird",
+    "name": "floppy-bird",
+    "description": "Flop flop flop floppy~~",
     "dependencies": {
         "@fortawesome/react-fontawesome": "^0.2.0",
         "@testing-library/jest-dom": "^5.16.5",
@@ -10,7 +10,6 @@
         "axios": "^1.4.0",
         "react": "^18.2.0",
         "react-cookie-consent": "^8.0.1",
-        "react-custom-roulette": "^1.4.1",
         "react-dom": "^18.2.0",
         "react-responsive-carousel": "^3.2.21",
         "react-router-dom": "^6.11.0",
