@@ -1,12 +1,16 @@
 export class FloppyBird {
-	constructor(canvasWidth, canvasHeight, playerSize, fps) {
+	constructor(canvasWidth, canvasHeight, playerSize, fps, img = null) {
 		this.playerSize = playerSize;
+		this.hithoxPercentage = 0.8;
+		this.hitboxSize = playerSize * this.hithoxPercentage;
 
 		// Up is negative, down is positive
 		this.gravity = 0.8;
 		this.lift = -16;
 		this.velocity = 0;	// How much the bird moves up (no horizantal velocity)
 		this.fps = fps;
+
+		this.img = img;
 
 		this.isDead = false;
 		this.isFlying = false;
@@ -42,6 +46,7 @@ export class FloppyBird {
 
 	updatePlayerSize(playerSize) {
 		this.playerSize = playerSize;
+		this.hitboxSize = playerSize * this.hithoxPercentage;
 	}
 
 	// Reset
@@ -78,8 +83,8 @@ export class FloppyBird {
 		this.y += this.velocity;
 
 		// Stop at bottom
-		if (this.y > this.canvasHeight - this.playerSize) {
-			this.y = this.canvasHeight - this.playerSize;
+		if (this.y > this.canvasHeight - this.hitboxSize) {
+			this.y = this.canvasHeight - this.hitboxSize;
 			this.velocity = 0;
 
 			if (!this.isDead) {
@@ -88,8 +93,8 @@ export class FloppyBird {
 		}
 
 		// Stop at top
-		if (this.y < 0) {
-			this.y = 0;
+		if (this.y < 0 + this.hitboxSize - this.playerSize) {
+			this.y = 0 + this.hitboxSize - this.playerSize;
 			this.velocity = 0;
 
 			if (!this.isDead) {

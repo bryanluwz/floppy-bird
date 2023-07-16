@@ -34,6 +34,8 @@
     opacity: 0.8;
 
     user-select: none;
+
+    object-fit: cover;
 }
 
 .floppy-bird-content-body {
