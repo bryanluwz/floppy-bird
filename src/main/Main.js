@@ -4,7 +4,8 @@ import { createRef } from "react";
 import { FloppyBird, PipePair } from "./FloppyBird";
 
 const rootStyles = getComputedStyle(document.documentElement);
-const fontColour = rootStyles.getPropertyValue('--lavender-pastel-font-1');
+const darkFontColour = rootStyles.getPropertyValue("--lavender-pastel-font-1");
+const lightFontColour = rootStyles.getPropertyValue("--lavender-pastel-5");
 
 export default class Main extends Component {
 	constructor(props) {
@@ -94,12 +95,18 @@ export default class Main extends Component {
 
 		// Check if game is over
 		if (this.game.player.isDead) {
-			// Draw game over scene
-			context.fillStyle = fontColour;
+			// Draw game over scene 
+			// Draw background behind the text
+			// context.fillStyle = "#e1cde4";
+			// context.fillRect(canvas.width / 2 - 200, canvas.height / 2 - 80, 400, 110);
+
+			// Draw game over text and score
+			context.fillStyle = darkFontColour;
 			context.font = "bold 3em Poppins";
 			context.textAlign = "center";
 			context.fillText(this.gameOverMessage, canvas.width / 2, canvas.height / 2 - 30);
 
+			context.fillStyle = lightFontColour;
 			context.font = "bold 1.5em Poppins";
 			context.fillText(`You scored ${this.game.score} points`, canvas.width / 2, canvas.height / 2 + 10);
 		}
@@ -181,9 +188,9 @@ export default class Main extends Component {
 		});
 	};
 
-	// Render score on the top center of the screen
+	// Render score on the top center of the screen 
 	renderScore = (canvas, context) => {
-		context.fillStyle = fontColour;
+		context.fillStyle = lightFontColour;
 		context.font = "bold 1.5em Poppins";
 		context.textAlign = "center";
 		context.fillText(this.game.score, canvas.width / 2, 50);
@@ -217,7 +224,7 @@ export default class Main extends Component {
 
 		// Init pipes
 		this.setState({ canNewPipeBeAdded: true });
-		this.gameOverMessage = this.gameOverMessages[Math.floor(Math.random() * this.gameOverMessages.length) - 1];
+		this.gameOverMessage = this.gameOverMessages[Math.floor(Math.random() * this.gameOverMessages.length)];
 
 		this.game.pipes = [];
 
@@ -229,7 +236,7 @@ export default class Main extends Component {
 		this.game.player.resetPlayer();
 		this.game.pipes = [];
 		this.game.score = 0;
-		this.gameOverMessage = this.gameOverMessages[Math.floor(Math.random() * this.gameOverMessages.length) - 1];
+		this.gameOverMessage = this.gameOverMessages[Math.floor(Math.random() * this.gameOverMessages.length)];
 	};
 
 	// Check if space bar or click (touch / press) is pressed
@@ -255,13 +262,15 @@ export default class Main extends Component {
 				router={this.props.router}
 				handleHeaderTitleClick={() => { console.log("please do not the title"); }}
 			>
+				<img src="https://raw.githubusercontent.com/bryanluwz/gh-pages-common-public/main/images/Floppy-Bird-assets/background.png" alt="background" />
 				<canvas
 					ref={this.canvasRef}
 					className="floppy-bird-canvas"
 					tabIndex={1000}
 					onClick={this.checkIfSpaceBarOrClick}
 					onKeyDownCapture={this.checkIfSpaceBarOrClick}
-				/>
+				>
+				</canvas>
 			</ContentDisplay>
 		);
 	}
