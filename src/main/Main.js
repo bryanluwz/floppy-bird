@@ -4,7 +4,7 @@ import { createRef } from "react";
 import { FloppyBird, PipePair } from "./FloppyBird";
 
 const rootStyles = getComputedStyle(document.documentElement);
-const victoryColor = rootStyles.getPropertyValue('--lavender-pastel-font-1');
+const fontColour = rootStyles.getPropertyValue('--lavender-pastel-font-1');
 
 export default class Main extends Component {
 	constructor(props) {
@@ -15,7 +15,7 @@ export default class Main extends Component {
 		this.game = {
 			player: null,
 			pipes: [],
-			score: 0,
+			score: 0
 		};
 
 		this.fps = 50;
@@ -28,11 +28,8 @@ export default class Main extends Component {
 		this.gameOverMessages = [
 			"game over",
 			"birb is ded",
-			"birb is no more",
 			"birb is kill",
-			"birb is diagnosed with dead",
-			"birb is no longer with us",
-			"rip birb",
+			"rip birb"
 		];
 		this.gameOverMessage = "";
 
@@ -83,20 +80,22 @@ export default class Main extends Component {
 		context.clearRect(0, 0, canvas.width, canvas.height);		// this.renderBackground();
 
 		this.updatePlayer();
-		this.renderPlayer();
+		this.renderPlayer(context);
+
+		this.renderScore(canvas, context);
 
 		if (this.game.player.isFlying) {
-			this.updatePipesArray();
+			this.updatePipesArray(canvas);
 			if (!this.game.player.isDead) {
 				this.updatePipes();
 			}
-			this.renderPipes();
+			this.renderPipes(context);
 		}
 
 		// Check if game is over
 		if (this.game.player.isDead) {
 			// Draw game over scene
-			context.fillStyle = victoryColor;
+			context.fillStyle = fontColour;
 			context.font = "bold 3em Poppins";
 			context.textAlign = "center";
 			context.fillText(this.gameOverMessage, canvas.width / 2, canvas.height / 2 - 30);
@@ -109,13 +108,8 @@ export default class Main extends Component {
 		}
 	};
 
-	renderPlayer = () => {
-		const canvas = this.canvasRef.current;
-		if (!canvas) return;
-
+	renderPlayer = (context) => {
 		const player = this.game.player;
-
-		const context = canvas.getContext("2d");
 
 		// Draw using players image
 		context.fillStyle = "#000000";
@@ -128,14 +122,9 @@ export default class Main extends Component {
 		player.update();
 	};
 
-	renderPipes = () => {
+	renderPipes = (context) => {
 		// Draw the pipes using pipes image
-		const canvas = this.canvasRef.current;
-		if (!canvas) return;
-
 		const pipes = this.game.pipes;
-
-		const context = canvas.getContext("2d");
 
 		// Draw using players image
 		context.fillStyle = "#000000";
@@ -158,10 +147,7 @@ export default class Main extends Component {
 		);
 	};
 
-	updatePipesArray = () => {
-		const canvas = this.canvasRef.current;
-		if (!canvas) return;
-
+	updatePipesArray = (canvas) => {
 		// Adding new pipes in array if pipes are less than 3
 		// Remove pipes from array if they are out of the left canvas
 		// Pipes initial position are within a range of (x to y) from the player
@@ -173,8 +159,10 @@ export default class Main extends Component {
 			// Add new pipes in array, and have cooldown of 3 secs before new one is added
 			if (!this.state.canNewPipeBeAdded) return;
 
-			if (Math.random() < 0.5 || this.game.pipes.length === 0) {
-				this.game.pipes.push(new PipePair(canvas.width, Math.floor(Math.random() * canvas.height / 2), 100, canvas.height, null, this.fps, canvas.height / 3));
+			if (Math.random() < 0.3 || this.game.pipes.length === 0) {
+				this.game.pipes.push(
+					new PipePair(canvas.width, Math.floor(Math.random() * canvas.height / 2), 100, canvas.height, null, this.fps, canvas.height * 45 / 100)
+				);
 
 				this.setState({ canNewPipeBeAdded: false }, () => {
 					setTimeout(() => {
@@ -189,11 +177,18 @@ export default class Main extends Component {
 			if (pipePair.checkOutOfCanvas()) {
 				this.game.pipes.splice(this.game.pipes.indexOf(pipePair), 1);
 				this.game.score++;
-				console.log(this.game.score);
 			}
 		});
-
 	};
+
+	// Render score on the top center of the screen
+	renderScore = (canvas, context) => {
+		context.fillStyle = fontColour;
+		context.font = "bold 1.5em Poppins";
+		context.textAlign = "center";
+		context.fillText(this.game.score, canvas.width / 2, 50);
+	};
+
 
 	// Check if player collide with pipes
 	checkIfPlayerCollideWithPipes = () => {
@@ -222,7 +217,7 @@ export default class Main extends Component {
 
 		// Init pipes
 		this.setState({ canNewPipeBeAdded: true });
-		this.gameOverMessage = this.gameOverMessages[Math.floor(Math.random() * this.gameOverMessages.length)];
+		this.gameOverMessage = this.gameOverMessages[Math.floor(Math.random() * this.gameOverMessages.length) - 1];
 
 		this.game.pipes = [];
 
@@ -234,7 +229,7 @@ export default class Main extends Component {
 		this.game.player.resetPlayer();
 		this.game.pipes = [];
 		this.game.score = 0;
-		this.gameOverMessage = this.gameOverMessages[Math.floor(Math.random() * this.gameOverMessages.length)];
+		this.gameOverMessage = this.gameOverMessages[Math.floor(Math.random() * this.gameOverMessages.length) - 1];
 	};
 
 	// Check if space bar or click (touch / press) is pressed
