@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.css": "/floppy-bird/static/css/main.7b1fd2bd.css",
+    "main.js": "/floppy-bird/static/js/main.f35fff18.js",
+    "static/media/lulo-font.ttf": "/floppy-bird/static/media/lulo-font.cf6ce051896b18d3449b.ttf",
+    "index.html": "/floppy-bird/index.html",
+    "main.7b1fd2bd.css.map": "/floppy-bird/static/css/main.7b1fd2bd.css.map",
+    "main.f35fff18.js.map": "/floppy-bird/static/js/main.f35fff18.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.7b1fd2bd.css",
+    "static/js/main.f35fff18.js"
+  ]
+}
