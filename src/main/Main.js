@@ -3,10 +3,40 @@ import { ContentDisplay } from "../components/others/";
 import { createRef } from "react";
 import { FloppyBird, PipePair } from "./FloppyBird";
 
+// Load Styles
 const rootStyles = getComputedStyle(document.documentElement);
 const darkFontColour = rootStyles.getPropertyValue("--lavender-pastel-font-1");
-const lightFontColour = rootStyles.getPropertyValue("--lavender-pastel-5");
+// const lightFontColour = rootStyles.getPropertyValue("--lavender-pastel-5");
 
+// Load Images
+const playerImage = new Image();
+playerImage.src = "https://raw.githubusercontent.com/bryanluwz/gh-pages-common-public/main/images/Floppy-Bird-assets/totoco.png";
+
+const bottomPipeImage = new Image();
+bottomPipeImage.crossOrigin = "anonymous";
+bottomPipeImage.src = "https://raw.githubusercontent.com/bryanluwz/gh-pages-common-public/main/images/Floppy-Bird-assets/pipe.png";
+
+const topPipeImage = new Image();
+
+bottomPipeImage.onload = function () {
+	// Create a temporary canvas
+	const tempCanvas = document.createElement('canvas');
+	const tempContext = tempCanvas.getContext('2d');
+
+	// Set the size of the temporary canvas to match the image dimensions
+	tempCanvas.width = bottomPipeImage.width;
+	tempCanvas.height = bottomPipeImage.height;
+
+	// Rotate the image on the temporary canvas
+	tempContext.translate(bottomPipeImage.width, bottomPipeImage.height);
+	tempContext.rotate(Math.PI);
+	tempContext.drawImage(bottomPipeImage, 0, 0);
+
+	// Extract the rotated image data
+	topPipeImage.src = tempCanvas.toDataURL();
+};
+
+// Main Component
 export default class Main extends Component {
 	constructor(props) {
 		super(props);
@@ -83,8 +113,6 @@ export default class Main extends Component {
 		this.updatePlayer();
 		this.renderPlayer(context);
 
-		this.renderScore(canvas, context);
-
 		if (this.game.player.isFlying) {
 			this.updatePipesArray(canvas);
 			if (!this.game.player.isDead) {
@@ -92,6 +120,8 @@ export default class Main extends Component {
 			}
 			this.renderPipes(context);
 		}
+
+		this.renderScore(canvas, context);
 
 		// Check if game is over
 		if (this.game.player.isDead) {
@@ -102,11 +132,11 @@ export default class Main extends Component {
 			context.textAlign = "center";
 			context.fillText(this.gameOverMessage, canvas.width / 2, canvas.height / 2 - 30);
 
-			context.fillStyle = lightFontColour;
+			context.fillStyle = darkFontColour;
 			context.font = "bold 1.5em Poppins";
 			context.fillText(`You scored ${this.game.score} points`, canvas.width / 2, canvas.height / 2 + 10);
 		}
-		else {
+		else if (this.game.player.isFlying) {
 			this.checkIfPlayerCollideWithPipes();
 		}
 	};
@@ -132,7 +162,7 @@ export default class Main extends Component {
 		context.fillStyle = "#000000";
 		pipes.forEach(pipePair => {
 			pipePair.pipes.forEach(pipe => {
-				context.fillRect(pipe.x, pipe.y, pipe.width, pipe.height);
+				context.drawImage(pipe.img, pipe.x, pipe.y, pipe.width, pipe.height);
 			});
 		}
 		);
@@ -142,9 +172,7 @@ export default class Main extends Component {
 		// Update the pipes position
 		const pipes = this.game.pipes;
 		pipes.forEach(pipePair => {
-			pipePair.pipes.forEach(pipe => {
-				pipe.update();
-			});
+			pipePair.update();
 		}
 		);
 	};
@@ -162,30 +190,48 @@ export default class Main extends Component {
 			if (!this.state.canNewPipeBeAdded) return;
 
 			if (Math.random() < 0.3 || this.game.pipes.length === 0) {
-				this.game.pipes.push(
-					new PipePair(canvas.width, Math.floor(Math.random() * canvas.height / 2), 100, canvas.height, null, this.fps, canvas.height * 45 / 100)
-				);
+				// Add new pipe when previous pipe is 300px away from right side of canvas
+				// or when there is no pipe in the array
+				if (this.game.pipes.some((pipePair) => {
+					return pipePair.x + pipePair.width > canvas.width - 300;
+				})) {
+					return;
+				}
 
-				this.setState({ canNewPipeBeAdded: false }, () => {
-					setTimeout(() => {
-						this.setState({ canNewPipeBeAdded: true });
-					}, 3000);
-				});
+				this.game.pipes.push(
+					new PipePair(
+						canvas.width,
+						Math.floor(Math.random() * canvas.height / 2),
+						100,
+						canvas.height, {
+						"top": topPipeImage,
+						"bottom": bottomPipeImage
+					},
+						this.fps,
+						canvas.height * 45 / 100)
+				);
 			}
 		}
+
+		// Check if player passed the pipe
+		this.game.pipes.forEach(pipePair => {
+			if (pipePair.pipes[0].x - pipePair.width < this.game.player.x + this.game.player.hitboxSize && !pipePair.isScored) {
+				this.game.score++;
+				pipePair.isScored = true;
+			}
+		});
 
 		// Remove pipes that are out of the left canvas
 		this.game.pipes.forEach(pipePair => {
 			if (pipePair.checkOutOfCanvas()) {
 				this.game.pipes.splice(this.game.pipes.indexOf(pipePair), 1);
-				this.game.score++;
 			}
 		});
 	};
 
 	// Render score on the top center of the screen 
 	renderScore = (canvas, context) => {
-		context.fillStyle = lightFontColour;
+		context.fillStyle = darkFontColour;
 		context.font = "bold 1.5em Poppins";
 		context.textAlign = "center";
 		context.fillText(this.game.score, canvas.width / 2, 50);
@@ -215,8 +261,6 @@ export default class Main extends Component {
 		if (!canvas) return;
 
 		// Create new player
-		const playerImage = new Image();
-		playerImage.src = "https://raw.githubusercontent.com/bryanluwz/gh-pages-common-public/main/images/Floppy-Bird-assets/totoco.png";
 		this.game.player = new FloppyBird(canvas.width, canvas.height, this.state.playerSize, this.fps, playerImage);
 
 		// Init pipes
@@ -251,13 +295,13 @@ export default class Main extends Component {
 	render() {
 		return (
 			<ContentDisplay
-				backButtonRoute={"https://bryanluwz.github.io/"}
+				backButtonRedirect={"https://bryanluwz.github.io/#/fun-stuff"}
 				displayName={Main.displayName}
 				displayClearHistory={false}
 				faIcon={"fa-trash"}
 				contentBodyAdditionalClasses={["floppy-bird-content-body"]}
 				router={this.props.router}
-				handleHeaderTitleClick={() => { console.log("please do not the title"); }}
+				handleHeaderTitleClick={() => { console.log("please do not play on mobile"); }}
 			>
 				<img src="https://raw.githubusercontent.com/bryanluwz/gh-pages-common-public/main/images/Floppy-Bird-assets/background.png" alt="background" />
 				<canvas

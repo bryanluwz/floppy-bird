@@ -1,7 +1,7 @@
 export class FloppyBird {
 	constructor(canvasWidth, canvasHeight, playerSize, fps, img = null) {
 		this.playerSize = playerSize;
-		this.hithoxPercentage = 0.8;
+		this.hithoxPercentage = 0.5;
 		this.hitboxSize = playerSize * this.hithoxPercentage;
 
 		// Up is negative, down is positive
@@ -105,7 +105,7 @@ export class FloppyBird {
 }
 
 export class Pipe {
-	constructor(x, y, width, height, img, fps) {
+	constructor(x, y, width, height, img, fps, velocity) {
 		this.x = x;
 		this.y = y;
 		this.width = width;
@@ -113,7 +113,7 @@ export class Pipe {
 		this.img = img;
 
 		this.fps = fps;
-		this.velocity = 160 / fps;	// Horizontal velocity
+		this.velocity = velocity;
 
 		this.start();
 	}
@@ -122,8 +122,11 @@ export class Pipe {
 		return this.x + this.width < 0;
 	}
 
+	updateX(x) {
+		this.x = x;
+	}
+
 	update() {
-		this.x -= this.velocity;
 	}
 
 	start() {
@@ -142,7 +145,10 @@ export class PipePair {
 
 		this.fps = fps;
 
+		this.velocity = 160 / fps;	// Horizontal velocity
+
 		this.pipes = [];
+		this.isScored = false;
 
 		this.start();
 	}
@@ -153,8 +159,9 @@ export class PipePair {
 	}
 
 	update() {
+		this.x -= this.velocity;
 		this.pipes.forEach(pipe => {
-			pipe.update();
+			pipe.updateX(this.x);
 		}
 		);
 	}
@@ -163,7 +170,8 @@ export class PipePair {
 		// Two pipes will be in the pipes array
 		// One pipe will be on top of the other
 		// The distance between the pipes are fixed (more or less)
-		this.pipes.push(new Pipe(this.x, this.y - this.height, this.width, this.height, this.img, this.fps));
-		this.pipes.push(new Pipe(this.x, this.y + this.gap, this.width, this.height, this.img, this.fps));
+		this.pipes.push(new Pipe(this.x, this.y - this.height, this.width, this.height, this.img["top"], this.fps));
+		this.pipes.push(new Pipe(this.x, this.y + this.gap, this.width, this.height, this.img["bottom"], this.fps));
+		this.isScored = false;
 	}
 }

@@ -7,9 +7,6 @@
     top: 0;
     left: 0;
 
-    /* width: 100%; */
-    /* height: 80dvh; */
-
     border-radius: 30px;
     border: 10px solid var(--lavender-pastel-3);
 
@@ -41,5 +38,6 @@
 .floppy-bird-content-body {
     position: relative;
 
+    width: 80dvw;
     height: 80dvh;
 }
